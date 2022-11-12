@@ -11,7 +11,7 @@ open String;;
 let rec read_multiline str = 
   try 
     flush stdout;
-    sub str 0 (rindex_from str ((rindex str ';') - 1) ';' - 1)
+    sub str 0 (rindex_from str ((rindex str ';') - 1) ';')
   with 
     Not_found ->     
       let str2 = input_line stdin 
