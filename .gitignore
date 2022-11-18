@@ -2,11 +2,14 @@ top
 .vscode/settings.json
 lambda.cmi
 lambda.cmo
+lexer.ml
 lexer.cmi
 lexer.cmo
 lexer.cmi
 lexer.cmo
 main.cmi
 main.cmo
+parser.ml
+parser.mli
 parser.cmi
 parser.cmo
