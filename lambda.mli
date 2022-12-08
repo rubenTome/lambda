@@ -4,6 +4,8 @@ type ty =
   | TyNat
   | TyArr of ty * ty
   | TyString 
+  | TyTuple
+  | TyReg
 ;;
 
 type 'a context =

@@ -6,6 +6,8 @@ type ty =
   | TyNat
   | TyArr of ty * ty
   | TyString
+  | TyTuple (*TODO completar*)
+  | TyReg (*TODO completar*)
 ;;
 
 type 'a context =
@@ -62,6 +64,10 @@ let rec string_of_ty ty = match ty with
       "(" ^ string_of_ty ty1 ^ ")" ^ " -> " ^ "(" ^ string_of_ty ty2 ^ ")"
   | TyString ->
       "String"
+  | TyTuple -> (*TODO completar*)
+      "tupla"
+  | TyReg -> (*TODO completar*)
+      "registro"
 ;;
 
 exception Type_error of string
@@ -146,6 +152,12 @@ let rec typeof ctx tm = match tm with
   | TmConcat (t1, t2) ->
     if typeof ctx t1 = TyString && typeof ctx t2 = TyString then TyString
     else raise (Type_error "must be 2 strings to concat")
+
+  | TmTuple _ -> (*TODO completar*)
+    TyTuple
+
+  | TmReg _ -> (*TODO completar*)
+    TyReg
 ;;
 
 
@@ -186,6 +198,16 @@ let rec string_of_term = function
       "\"" ^ s ^ "\""
   | TmConcat (t1, t2) ->
     "concat " ^ "(" ^ string_of_term t1 ^ ") " ^ "(" ^ string_of_term t2 ^ ")"
+  | TmTuple l ->
+    let rec f str = function
+        h::t -> f (str ^ (string_of_term h) ^ ", ") t 
+      | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
+    in (f "tuple { " l)
+  | TmReg l -> (*TODO completar*)
+    let rec f str = function
+        h::t -> f (str ^ (string_of_term h) ^ ", ") t 
+      | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
+    in (f "Register { " l)
 ;;
 
 let rec ldif l1 l2 = match l1 with
@@ -227,6 +249,10 @@ let rec free_vars tm = match tm with
       []
   | TmConcat (t1, t2) ->
       lunion (free_vars t1) (free_vars t2)
+  | TmTuple _->(*TODO completar*)
+    []
+  | TmReg _ ->(*TODO completar*)
+    []
 ;;
 
 let rec fresh_name x l =
@@ -272,6 +298,10 @@ let rec subst x s tm = match tm with
     TmString s
   | TmConcat (t1, t2) ->
     TmConcat (subst x s t1, subst x s t2)
+  | TmTuple l ->(*TODO completar*)
+    TmTuple l
+  |TmReg l ->(*TODO completar*)
+    TmReg l
 ;;
 
 let rec isnumericval tm = match tm with
