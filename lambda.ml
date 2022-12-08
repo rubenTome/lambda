@@ -65,9 +65,9 @@ let rec string_of_ty ty = match ty with
   | TyString ->
       "String"
   | TyTuple -> (*TODO completar*)
-      "tupla"
+      "tuple"
   | TyReg -> (*TODO completar*)
-      "registro"
+      "register"
 ;;
 
 exception Type_error of string

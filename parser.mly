@@ -78,7 +78,7 @@ projTerm :
   | STRINGV COLON atomicTerm
       { $3 }
   | atomicTerm COMMA term
-      { TmTuple ($3::[$1]) }//TODO lista al reves
+      { TmTuple ($3::[$1]) }//TODO lista al reves. Hace tuplas dentro de tuplas !!!
   | STRINGV COLON atomicTerm COMMA term//TODO como meter $1 y $3 en un par
       { TmReg ($5::[$3]) }
 
