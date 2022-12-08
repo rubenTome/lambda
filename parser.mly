@@ -99,7 +99,7 @@ atomicTerm :
   | STRV 
       { TmString $1 }
   | LBRACE RBRACE
-      { TmTuple [] }
+      { TmReg [] }
   | LBRACE term RBRACE
       { $2 }
 
