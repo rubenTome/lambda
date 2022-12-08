@@ -1,0 +1,26 @@
+tuplas y registros:
+
+lambda.ml(i) -> 
+    *tuplas y registros: tipo listas de caml para tipos (ty)
+    *tuplas: valores sin nombre asoc. (term)
+    *registros: nombre asoc. valores (term)
+    *proyeccion se comparte entre tuplas y reg, 
+     se proyecta en numero o en etiqueta, 
+     se convierte a string la etiq. (term)
+    *tipos: hai que def. func. recursivas.
+     En una proy, sera: (tupla/reg, etiq)
+    *tipo tupla reg: tupla de pares 
+    *tipo proy: tipas list.assoc/list.nth-1 label reg/tupla
+    *subst reg/tupla: haces un map, intentas subst. en cada termino 
+    *subst proy: intentas subst de la etiq.
+    *isval: list.forall todos elem. son isval. Proy. no cumple
+lexer.mll ->
+    *añadir llaves y coma 
+parser.mly ->
+    *entre atomicterm y appterm añadimos
+     algo q sust. a atomicterm, seria un 
+     term. proyectable o un atomicterm, o 
+     sino sigues por atomicterm. Esto seria
+     para proyecc no para construirlos
+    *en atomicterm construimos reg o tuplas.
+     {}: es el reg. vacio, no la tupla vacia
