@@ -27,6 +27,9 @@
 %token COLON
 %token ARROW
 %token EOF
+%token LBRACE
+%token RBRACE
+%token COMMA
 
 %token <int> INTV
 %token <string> STRINGV
@@ -56,18 +59,28 @@ term :
       { TmLetIn ($2, TmFix (TmAbs ($2, $4, $6)), $8) }
 
 appTerm :
+    projTerm
+      { $1 }
+  | SUCC projTerm
+      { TmSucc $2 }
+  | PRED projTerm
+      { TmPred $2 }
+  | ISZERO projTerm
+      { TmIsZero $2 }
+  | CONCAT projTerm projTerm
+      { TmConcat ($2, $3) }
+  | appTerm projTerm
+      { TmApp ($1, $2) }
+
+projTerm :
     atomicTerm
       { $1 }
-  | SUCC atomicTerm
-      { TmSucc $2 }
-  | PRED atomicTerm
-      { TmPred $2 }
-  | ISZERO atomicTerm
-      { TmIsZero $2 }
-  | CONCAT atomicTerm atomicTerm
-      { TmConcat ($2, $3) }
-  | appTerm atomicTerm
-      { TmApp ($1, $2) }
+  | STRINGV COLON atomicTerm
+      { $3 }
+  | atomicTerm COMMA term
+      { TmTuple [$1] @ $3 }
+  | STRINGV COLON atomicTerm COMMA term
+      { TmReg [$3] @ $5 }
 
 atomicTerm :
     LPAREN term RPAREN
@@ -85,6 +98,10 @@ atomicTerm :
         in f $1 }
   | STRV 
       { TmString $1 }
+  | LBRACE RBRACE
+      { TmTuple [] }
+  | LBRACE term RBRACE
+      { $2 }
 
 ty :
     atomicTy
