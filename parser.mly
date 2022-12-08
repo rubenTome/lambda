@@ -78,9 +78,9 @@ projTerm :
   | STRINGV COLON atomicTerm
       { $3 }
   | atomicTerm COMMA term
-      { TmTuple [$1] @ $3 }
-  | STRINGV COLON atomicTerm COMMA term
-      { TmReg [$3] @ $5 }
+      { TmTuple ([$1] @ [$3]) }//TODO $3 no deberia ir entre corchetes.
+  | STRINGV COLON atomicTerm COMMA term//TODO como meter $1 y $3 en un par
+      { TmReg ([$3] @ [$5]) }
 
 atomicTerm :
     LPAREN term RPAREN

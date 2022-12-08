@@ -27,6 +27,8 @@ type term =
   | TmFix of term
   | TmString of string
   | TmConcat of term * term
+  | TmTuple of term list
+  | TmReg of  term list (*TODO seria (string * term) list*)
 ;;
 
 type command = 
