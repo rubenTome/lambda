@@ -72,17 +72,17 @@ appTerm :
   | appTerm atomicTerm
       { TmApp ($1, $2) }
 
-projTerm :
+projTermT :
     atomicTerm
       { [$1] }
-  | STRINGV COLON atomicTerm
-      { [$3] }
-  | atomicTerm COMMA projTerm
+  | atomicTerm COMMA projTermT
       {([$1] @ $3) }
-  
-  //TODO como meter $1 y $3 en un par Hace regs dentro de tuplas !!!
-  | STRINGV COLON atomicTerm COMMA projTerm
-      { ([$3] @ $5) }
+
+projTermR :
+    STRINGV COLON atomicTerm
+      { [($1, $3)] }
+  | STRINGV COLON atomicTerm COMMA projTermR
+      { ([($1, $3)] @ $5) }
 
 atomicTerm :
     LPAREN term RPAREN
@@ -102,8 +102,10 @@ atomicTerm :
       { TmString $1 }
   | LBRACE RBRACE
       { TmReg [] }
-  | LBRACE projTerm RBRACE //TODO crear registros
+  | LBRACE projTermT RBRACE
       { TmTuple $2 }
+  | LBRACE projTermR RBRACE
+      { TmReg $2 }
 
 ty :
     atomicTy

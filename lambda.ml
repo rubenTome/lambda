@@ -30,7 +30,7 @@ type term =
   | TmString of string
   | TmConcat of term * term
   | TmTuple of term list
-  | TmReg of  term list (*TODO seria (string * term) list*)
+  | TmReg of (string * term) list
 ;;
 
 type command = 
@@ -205,7 +205,7 @@ let rec string_of_term = function
     in (f "tuple { " l)
   | TmReg l -> (*TODO completar*)
     let rec f str = function
-        h::t -> f (str ^ (string_of_term h) ^ ", ") t 
+        (s, h)::t -> f (str ^ s ^ ":" ^ (string_of_term h) ^ ", ") t 
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
     in (f "Register { " l)
 ;;
