@@ -307,6 +307,8 @@ let rec subst x s tm = match tm with
 let rec isnumericval tm = match tm with
     TmZero -> true
   | TmSucc t -> isnumericval t
+  | TmTuple _ -> false(*TODO completar*)
+  | TmReg _ -> false(*TODO completar*)
   | _ -> false
 ;;
 
@@ -316,6 +318,8 @@ let rec isval tm = match tm with
   | TmAbs _ -> true
   | TmString _ -> true
   | t when isnumericval t -> true
+  | TmTuple _ -> false(*TODO completar*)
+  | TmReg _ -> false(*TODO completar*)
   | _ -> false
 ;;
 
@@ -408,7 +412,7 @@ let rec eval1 vctx tm = match tm with
     let t2' = eval1 vctx t2 in TmConcat (TmString s1, t2')
   | TmConcat (t1, t2) ->
     let t1' = eval1 vctx t1 in TmConcat (t1', t2)
-
+  (*TODO AÑADIR PROYECCION*)
   | _ ->
       raise NoRuleApplies
 ;;
