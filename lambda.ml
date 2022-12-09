@@ -202,12 +202,12 @@ let rec string_of_term = function
     let rec f str = function
         h::t -> f (str ^ (string_of_term h) ^ ", ") t 
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
-    in (f "tuple { " l)
+    in (f "{ " l)
   | TmReg l -> (*TODO completar*)
     let rec f str = function
         (s, h)::t -> f (str ^ s ^ ":" ^ (string_of_term h) ^ ", ") t 
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
-    in (f "Register { " l)
+    in (f "{ " l)
 ;;
 
 let rec ldif l1 l2 = match l1 with
