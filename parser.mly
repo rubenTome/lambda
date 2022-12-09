@@ -59,28 +59,30 @@ term :
       { TmLetIn ($2, TmFix (TmAbs ($2, $4, $6)), $8) }
 
 appTerm :
-    projTerm
+    atomicTerm
       { $1 }
-  | SUCC projTerm
+  | SUCC atomicTerm
       { TmSucc $2 }
-  | PRED projTerm
+  | PRED atomicTerm
       { TmPred $2 }
-  | ISZERO projTerm
+  | ISZERO atomicTerm
       { TmIsZero $2 }
-  | CONCAT projTerm projTerm
+  | CONCAT atomicTerm atomicTerm
       { TmConcat ($2, $3) }
-  | appTerm projTerm
+  | appTerm atomicTerm
       { TmApp ($1, $2) }
 
 projTerm :
     atomicTerm
-      { $1 }
+      { [$1] }
   | STRINGV COLON atomicTerm
-      { $3 }
-  | atomicTerm COMMA term
-      { TmTuple ($3::[$1]) }//TODO lista al reves. Hace tuplas dentro de tuplas !!!
-  | STRINGV COLON atomicTerm COMMA term//TODO como meter $1 y $3 en un par
-      { TmReg ($5::[$3]) }
+      { [$3] }
+  | atomicTerm COMMA projTerm
+      {([$1] @ $3) }
+  
+  //TODO como meter $1 y $3 en un par Hace regs dentro de tuplas !!!
+  | STRINGV COLON atomicTerm COMMA projTerm
+      { ([$3] @ $5) }
 
 atomicTerm :
     LPAREN term RPAREN
@@ -100,8 +102,8 @@ atomicTerm :
       { TmString $1 }
   | LBRACE RBRACE
       { TmReg [] }
-  | LBRACE term RBRACE
-      { $2 }
+  | LBRACE projTerm RBRACE //TODO crear registros
+      { TmTuple $2 }
 
 ty :
     atomicTy
