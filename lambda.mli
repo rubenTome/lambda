@@ -27,7 +27,7 @@ type term =
   | TmFix of term
   | TmString of string
   | TmConcat of term * term
-  | TmTuple of term list
+  | TmTuple of (string * term) list
   | TmReg of (string * term) list
 ;;
 

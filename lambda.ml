@@ -29,7 +29,7 @@ type term =
   | TmFix of term
   | TmString of string
   | TmConcat of term * term
-  | TmTuple of term list
+  | TmTuple of (string * term) list
   | TmReg of (string * term) list
 ;;
 
@@ -200,12 +200,12 @@ let rec string_of_term = function
     "concat " ^ "(" ^ string_of_term t1 ^ ") " ^ "(" ^ string_of_term t2 ^ ")"
   | TmTuple l ->
     let rec f str = function
-        h::t -> f (str ^ (string_of_term h) ^ ", ") t 
+        (i, h)::t -> f (str ^ i ^ ":" ^(string_of_term h) ^ ", ") t 
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
     in (f "{ " l)
   | TmReg l -> (*TODO completar*)
     let rec f str = function
-        (s, h)::t -> f (str ^ s ^ ":" ^ (string_of_term h) ^ ", ") t 
+        (s, h)::t -> f (str ^ "\"" ^ s ^ "\"" ^ ":" ^ (string_of_term h) ^ ", ") t (*TODO cambiar printeo*)
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
     in (f "{ " l)
 ;;

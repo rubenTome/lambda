@@ -69,14 +69,18 @@ appTerm :
       { TmIsZero $2 }
   | CONCAT atomicTerm atomicTerm
       { TmConcat ($2, $3) }
+//   | LBRACE projTermT RBRACE DOT INTV
+//       { TmProj (TmTuple projTermT, string_of_int $5) }
+//   | LBRACE projTermR RBRACE DOT STRINGV
+//       { TmProj (TmReg projTermR, $5) }
   | appTerm atomicTerm
       { TmApp ($1, $2) }
 
-projTermT :
+projTermT : //TODO como sumar +1 a cada indice
     atomicTerm
-      { [$1] }
+      { [string_of_int 0, $1] }
   | atomicTerm COMMA projTermT
-      { [$1] @ $3 }
+      { [string_of_int 0, $1] @ $3 }
 
 projTermR :
     STRINGV COLON atomicTerm
