@@ -76,13 +76,13 @@ projTermT :
     atomicTerm
       { [$1] }
   | atomicTerm COMMA projTermT
-      {([$1] @ $3) }
+      { [$1] @ $3 }
 
 projTermR :
     STRINGV COLON atomicTerm
       { [($1, $3)] }
   | STRINGV COLON atomicTerm COMMA projTermR
-      { ([($1, $3)] @ $5) }
+      { [($1, $3)] @ $5 }
 
 atomicTerm :
     LPAREN term RPAREN
