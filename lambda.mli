@@ -6,6 +6,7 @@ type ty =
   | TyString 
   | TyTuple
   | TyReg
+  | TyProj
 ;;
 
 type 'a context =
@@ -29,6 +30,7 @@ type term =
   | TmConcat of term * term
   | TmTuple of (string * term) list
   | TmReg of (string * term) list
+  | TmProj of ((string * term) list * string)
 ;;
 
 type command = 

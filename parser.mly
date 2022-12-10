@@ -69,10 +69,10 @@ appTerm :
       { TmIsZero $2 }
   | CONCAT atomicTerm atomicTerm
       { TmConcat ($2, $3) }
-//   | LBRACE projTermT RBRACE DOT INTV
-//       { TmProj (TmTuple projTermT, string_of_int $5) }
-//   | LBRACE projTermR RBRACE DOT STRINGV
-//       { TmProj (TmReg projTermR, $5) }
+   | LBRACE projTermT RBRACE DOT INTV
+       { TmProj ( $2, string_of_int $5) }
+   | LBRACE projTermR RBRACE DOT STRINGV
+       { TmProj ( $2, $5) }
   | appTerm atomicTerm
       { TmApp ($1, $2) }
 

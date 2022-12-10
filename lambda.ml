@@ -8,6 +8,7 @@ type ty =
   | TyString
   | TyTuple (*TODO completar*)
   | TyReg (*TODO completar*)
+  | TyProj
 ;;
 
 type 'a context =
@@ -31,6 +32,7 @@ type term =
   | TmConcat of term * term
   | TmTuple of (string * term) list
   | TmReg of (string * term) list
+  | TmProj of ((string * term) list * string)
 ;;
 
 type command = 
@@ -68,6 +70,8 @@ let rec string_of_ty ty = match ty with
       "tuple"
   | TyReg -> (*TODO completar*)
       "register"
+  | TyProj ->(*TODO completar*)
+      "projection"
 ;;
 
 exception Type_error of string
@@ -158,6 +162,9 @@ let rec typeof ctx tm = match tm with
 
   | TmReg _ -> (*TODO completar*)
     TyReg
+
+  | TmProj _ -> (*TODO completar*)
+    TyProj
 ;;
 
 
@@ -208,6 +215,11 @@ let rec string_of_term = function
         (s, h)::t -> f (str ^ "\"" ^ s ^ "\"" ^ ":" ^ (string_of_term h) ^ ", ") t (*TODO cambiar printeo*)
       | [] -> (String.sub str 0 (String.length str - 2)) ^ " }"
     in (f "{ " l)
+  | TmProj (list, l) ->
+    let rec f str label = function
+        (id, v)::t -> f (str ^ "(" ^ id ^ ", " ^ (string_of_term v) ^ "); ") label t
+      | [] -> (String.sub str 0 (String.length str - 2)) ^ "], " ^ l
+    in (f "Proj [" l list)
 ;;
 
 let rec ldif l1 l2 = match l1 with
@@ -252,6 +264,8 @@ let rec free_vars tm = match tm with
   | TmTuple _->(*TODO completar*)
     []
   | TmReg _ ->(*TODO completar*)
+    []
+  | TmProj _ ->(*TODO completar*)
     []
 ;;
 
@@ -300,8 +314,10 @@ let rec subst x s tm = match tm with
     TmConcat (subst x s t1, subst x s t2)
   | TmTuple l ->(*TODO completar*)
     TmTuple l
-  |TmReg l ->(*TODO completar*)
+  | TmReg l ->(*TODO completar*)
     TmReg l
+  | TmProj p ->(*TODO completar*)
+    TmProj p
 ;;
 
 let rec isnumericval tm = match tm with
@@ -309,6 +325,7 @@ let rec isnumericval tm = match tm with
   | TmSucc t -> isnumericval t
   | TmTuple _ -> false(*TODO completar*)
   | TmReg _ -> false(*TODO completar*)
+  | TmProj _ -> false(*TODO completar*)
   | _ -> false
 ;;
 
@@ -320,6 +337,7 @@ let rec isval tm = match tm with
   | t when isnumericval t -> true
   | TmTuple _ -> false(*TODO completar*)
   | TmReg _ -> false(*TODO completar*)
+  | TmProj _ -> false(*TODO completar*)
   | _ -> false
 ;;
 
@@ -412,7 +430,8 @@ let rec eval1 vctx tm = match tm with
     let t2' = eval1 vctx t2 in TmConcat (TmString s1, t2')
   | TmConcat (t1, t2) ->
     let t1' = eval1 vctx t1 in TmConcat (t1', t2)
-  (*TODO AÑADIR PROYECCION*)
+  | TmProj (list, label) ->
+    List.assoc label list (*TODO dudas*)
   | _ ->
       raise NoRuleApplies
 ;;
