@@ -178,6 +178,19 @@ let rec typeof ctx tm = match tm with
     )
 ;;
 
+(* SUBTYPING *)
+
+let rec is_subtype ctx t1 t2 =
+  match (t1, t2) with
+    (TyReg(f1), TyReg(f2)) ->
+      List.for_all (fun (li, tyTi) -> 
+        try let tySi = List.assoc li f1 in
+            is_subtype ctx tySi, tyTi
+        with Not_found ->false)
+      f2
+  | (_, _) -> false
+;;
+
 
 (* TERMS MANAGEMENT (EVALUATION) *)
 
