@@ -4,9 +4,8 @@ type ty =
   | TyNat
   | TyArr of ty * ty
   | TyString 
-  | TyTuple
-  | TyReg
-  | TyProj
+  | TyTuple of ty list
+  | TyRec of (string * ty) list
 ;;
 
 type 'a context =
@@ -28,9 +27,9 @@ type term =
   | TmFix of term
   | TmString of string
   | TmConcat of term * term
-  | TmTuple of (string * term) list
-  | TmReg of (string * term) list
-  | TmProj of ((string * term) list * string)
+  | TmTuple of term list
+  | TmRec of (string * term) list
+  | TmProj of (term * string)
 ;;
 
 type command = 

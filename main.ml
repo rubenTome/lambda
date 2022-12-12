@@ -41,9 +41,6 @@ let top_level_loop () =
          loop (vctx, tctx)
      | End_of_file ->
          print_endline "...bye!!!"
-     | Not_found -> 
-         print_endline "projection error";
-         loop (vctx, tctx)
   in
     loop (emptyctx, emptyctx)
   ;;
