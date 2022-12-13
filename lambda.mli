@@ -6,6 +6,7 @@ type ty =
   | TyString 
   | TyTuple of ty list
   | TyRec of (string * ty) list
+  | TyTop
 ;;
 
 type 'a context =

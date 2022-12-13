@@ -19,6 +19,7 @@ rule token = parse
   | "let"       { LET }
   | "letrec"    { LETREC }
   | "in"        { IN }
+  | "Top"       { TOP }
   | "Bool"      { BOOL }
   | "Nat"       { NAT }
   | "String"    { STRING }

@@ -8,6 +8,7 @@ type ty =
   | TyString
   | TyTuple of ty list
   | TyRec of (string * ty) list
+  | TyTop
 ;;
 
 type 'a context =
@@ -69,9 +70,29 @@ let rec string_of_ty ty = match ty with
       "{" ^ String.concat ", " (List.map string_of_ty l) ^ "}"
   | TyRec l ->
       "{" ^ String.concat ", " (List.map (fun (lb, tp) -> lb ^ ":" ^ string_of_ty tp) l) ^ "}"
+  | TyTop -> "Top"
 ;;
 
 exception Type_error of string
+;;
+
+(* SUBTYPING *)
+
+let rec subtype ctx ty1 ty2 = 
+   ty1 = ty2 ||
+  match (ty1, ty2) with
+    (TyRec(l1), TyRec(l2)) -> 
+      List.for_all
+        (fun (lb, ty2') -> 
+          try let ty1' = List.assoc lb l1 in 
+              subtype ctx ty1' ty2'
+          with Not_found -> false)
+      l2
+  | (_, TyTop) -> true
+  | (TyArr(ty11, ty12), TyArr(ty21, ty22)) ->
+    (subtype ctx ty21 ty11) && (subtype ctx ty12 ty22)
+
+  | (_, _) -> false
 ;;
 
 let rec typeof ctx tm = match tm with
@@ -128,7 +149,7 @@ let rec typeof ctx tm = match tm with
       let tyT2 = typeof ctx t2 in
       (match tyT1 with
            TyArr (tyT11, tyT12) ->
-             if tyT2 = tyT11 then tyT12
+             if (tyT2 = tyT11 || subtype ctx tyT2 tyT11) then tyT12
              else raise (Type_error "parameter type mismatch")
          | _ -> raise (Type_error "arrow type expected"))
 
@@ -176,19 +197,6 @@ let rec typeof ctx tm = match tm with
     | _ ->
       raise (Type_error "Must be a tuple or a record")
     )
-;;
-
-(* SUBTYPING *)
-
-let rec is_subtype ctx t1 t2 =
-  match (t1, t2) with
-    (TyReg(f1), TyReg(f2)) ->
-      List.for_all (fun (li, tyTi) -> 
-        try let tySi = List.assoc li f1 in
-            is_subtype ctx tySi, tyTi
-        with Not_found ->false)
-      f2
-  | (_, _) -> false
 ;;
 
 
