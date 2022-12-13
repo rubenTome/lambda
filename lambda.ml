@@ -182,16 +182,13 @@ let rec typeof ctx tm = match tm with
       )
   
   | TmList l ->
+      try
       (
-      if List.length l = 0 
-      then TyList TyNat (*TODO provisional, seria TyList TyUnit ?*)
-      else
-        (
-        if List.for_all (fun elem -> typeof ctx (List.hd l) = typeof ctx elem) l
-        then TyList (typeof ctx (List.hd l))
-        else raise (Type_error "List elements must have the same type")
-        )
+      if List.for_all (fun elem -> typeof ctx (List.hd l) = typeof ctx elem) l
+      then TyList (typeof ctx (List.hd l))
+      else raise (Type_error "List elements must have the same type")
       )
+      with Failure _ -> TyList TyNat (*TODO provisional, seria TyList TyUnit ¿?*)
 ;;
 
 
