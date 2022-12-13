@@ -8,6 +8,7 @@ type ty =
   | TyString
   | TyTuple of ty list
   | TyRec of (string * ty) list
+  | TyList of ty
 ;;
 
 type 'a context =
@@ -32,6 +33,7 @@ type term =
   | TmTuple of term list
   | TmRec of (string * term) list
   | TmProj of (term * string)
+  | TmList of term list
 ;;
 
 type command = 
@@ -69,6 +71,8 @@ let rec string_of_ty ty = match ty with
       "{" ^ String.concat ", " (List.map string_of_ty l) ^ "}"
   | TyRec l ->
       "{" ^ String.concat ", " (List.map (fun (lb, tp) -> lb ^ ":" ^ string_of_ty tp) l) ^ "}"
+  | TyList t ->
+      (string_of_ty t) ^ " list"
 ;;
 
 exception Type_error of string
@@ -148,34 +152,43 @@ let rec typeof ctx tm = match tm with
       | _ -> raise (Type_error "arrow type expected"))
 
   | TmString _ ->
-    TyString
+      TyString
 
   | TmConcat (t1, t2) ->
-    if typeof ctx t1 = TyString && typeof ctx t2 = TyString then TyString
-    else raise (Type_error "must be 2 strings to concat")
+      if typeof ctx t1 = TyString && typeof ctx t2 = TyString then TyString
+      else raise (Type_error "must be 2 strings to concat")
 
   | TmTuple l -> 
-    TyTuple (List.map (fun t -> typeof ctx t) l)
+      TyTuple (List.map (fun t -> typeof ctx t) l)
 
   | TmRec l -> 
-    TyRec (List.map (fun (lb, t) -> (lb, typeof ctx t)) l)
+      TyRec (List.map (fun (lb, t) -> (lb, typeof ctx t)) l)
 
   | TmProj (t, lb) ->
-    (
-    match typeof ctx t with
-      TyTuple l ->
-        (
-        try List.nth l (int_of_string lb - 1)
-        with _ -> raise(Type_error ("Position " ^ lb ^ " not found"))
-        )
-    | TyRec l ->
-        (
-        try List.assoc lb l
-        with _ -> raise(Type_error ("Label " ^ lb ^ " not found"))
-        )
-    | _ ->
-      raise (Type_error "Must be a tuple or a record")
-    )
+      (
+      match typeof ctx t with
+        TyTuple l ->
+          (
+          try List.nth l (int_of_string lb - 1)
+          with _ -> raise(Type_error ("Position " ^ lb ^ " not found"))
+          )
+      | TyRec l ->
+          (
+          try List.assoc lb l
+          with _ -> raise(Type_error ("Label " ^ lb ^ " not found"))
+          )
+      | _ ->
+        raise (Type_error "Must be a tuple or a record")
+      )
+  
+  | TmList l ->
+      try
+      (
+      if List.for_all (fun elem -> typeof ctx (List.hd l) = typeof ctx elem) l
+      then TyList (typeof ctx (List.hd l))
+      else raise (Type_error "List elements must have the same type")
+      )
+      with Failure _ -> TyList TyNat (*TODO provisional, seria TyList TyUnit ¿?*)
 ;;
 
 
@@ -222,6 +235,8 @@ let rec string_of_term = function
   "{" ^ String.concat ", " (List.map (fun (lb, tp) -> lb ^ ":" ^ string_of_term tp) l) ^ "}"
   | TmProj (t, lb) ->
     string_of_term t ^ "." ^ lb
+  | TmList l ->
+    "[" ^ String.concat "; " (List.map string_of_term l) ^ "]"
 ;;
 
 let rec ldif l1 l2 = match l1 with
@@ -268,7 +283,9 @@ let rec free_vars tm = match tm with
   | TmRec l ->
       List.fold_left (fun fv (lb, t) -> lunion fv (free_vars t)) [] l
   | TmProj (t, lb) ->
-    free_vars t
+      free_vars t
+  | TmList l ->
+      List.fold_left (fun fv t -> lunion fv (free_vars t)) [] l
 ;;
 
 let rec fresh_name x l =
@@ -311,15 +328,17 @@ let rec subst x s tm = match tm with
   | TmFix t ->
       TmFix (subst x s t)
   | TmString s ->
-    TmString s
+      TmString s
   | TmConcat (t1, t2) ->
-    TmConcat (subst x s t1, subst x s t2)
+      TmConcat (subst x s t1, subst x s t2)
   | TmTuple l ->
-    TmTuple (List.map (fun t -> subst x s t) l)
+      TmTuple (List.map (fun t -> subst x s t) l)
   | TmRec l ->
-    TmRec (List.map (fun (lb, t) -> (lb, subst x s t)) l)
+      TmRec (List.map (fun (lb, t) -> (lb, subst x s t)) l)
   | TmProj (t, lb) ->
-    TmProj (subst x s t, lb)
+      TmProj (subst x s t, lb)
+  | TmList l ->
+      TmList (List.map (fun t -> subst x s t) l)
 ;;
 
 let rec isnumericval tm = match tm with
@@ -336,6 +355,7 @@ let rec isval tm = match tm with
   | t when isnumericval t -> true
   | TmTuple l -> List.for_all (fun t -> isval t) l
   | TmRec l -> List.for_all (fun (_, t) -> isval t) l
+  | TmList l -> List.for_all (fun t -> isval t) l
   | _ -> false
 ;;
 
@@ -420,34 +440,41 @@ let rec eval1 vctx tm = match tm with
       TmFix t1'
 
   | TmVar s -> 
-    getbinding vctx s
+      getbinding vctx s
 
   | TmConcat (TmString s1, TmString s2) ->
-    TmString (s1^s2)
+      TmString (s1^s2)
   | TmConcat (TmString s1, t2) ->
-    let t2' = eval1 vctx t2 in TmConcat (TmString s1, t2')
+      let t2' = eval1 vctx t2 in TmConcat (TmString s1, t2')
   | TmConcat (t1, t2) ->
-    let t1' = eval1 vctx t1 in TmConcat (t1', t2)
+      let t1' = eval1 vctx t1 in TmConcat (t1', t2)
 
   | TmTuple l ->
-    let rec aux = function
-        [] -> raise NoRuleApplies
-      | h::t when isval h -> h::(aux t)
-      | h::t -> (eval1 vctx h)::t
-    in TmTuple (aux l)
+      let rec aux = function
+          [] -> raise NoRuleApplies
+        | h::t when isval h -> h::(aux t)
+        | h::t -> (eval1 vctx h)::t
+      in TmTuple (aux l)
   | TmRec l ->
-    let rec aux = function
-        [] -> raise NoRuleApplies
-      | (lb, h)::t when isval h -> (lb, h)::(aux t)
-      | (lb, h)::t -> (lb, eval1 vctx h)::t
-    in TmRec (aux l) 
+      let rec aux = function
+          [] -> raise NoRuleApplies
+        | (lb, h)::t when isval h -> (lb, h)::(aux t)
+        | (lb, h)::t -> (lb, eval1 vctx h)::t
+      in TmRec (aux l) 
 
   | TmProj (TmTuple fields as v, lb) when isval v -> 
-    List.nth fields (int_of_string lb - 1)
+      List.nth fields (int_of_string lb - 1)
   | TmProj (TmRec fields as v, lb) when isval v ->
-    List.assoc lb fields
+      List.assoc lb fields
   | TmProj (t, lb) ->
-    TmProj (eval1 vctx t, lb)
+      TmProj (eval1 vctx t, lb)
+
+  | TmList l ->
+      let rec aux = function
+          [] -> raise NoRuleApplies
+        | h::t when isval h -> h::(aux t)
+        | h::t -> (eval1 vctx h)::t
+      in TmList (aux l)
   
   | _ ->
       raise NoRuleApplies
