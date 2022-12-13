@@ -15,6 +15,7 @@
 %token LET
 %token LETREC
 %token IN
+%token TOP
 %token BOOL
 %token NAT
 %token STRING
@@ -142,7 +143,9 @@ ty :
 
 atomicTy :
     LPAREN ty RPAREN  
-      { $2 } 
+      { $2 }
+  | TOP
+      { TyTop }
   | BOOL
       { TyBool }
   | NAT
