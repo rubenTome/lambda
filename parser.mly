@@ -31,6 +31,9 @@
 %token LBRACE
 %token RBRACE
 %token COMMA
+%token LBRACKET
+%token RBRACKET
+%token SEMICOLON
 
 %token <int> INTV
 %token <string> STRINGV
@@ -101,6 +104,8 @@ atomicTerm :
       { TmTuple $2 }
   | LBRACE recordFields RBRACE
       { TmRec $2 }
+  | LBRACKET listFields RBRACKET
+      { TmList $2 }
 
 tupleFields:
     term
@@ -118,6 +123,17 @@ notEmptyRecordFields:
       { [($1, $3)] }
   | STRINGV EQ term COMMA notEmptyRecordFields
       { ($1, $3)::$5 }
+
+listFields:
+      { [] }//lista vacia
+  | notEmptyList
+      { $1 }
+
+notEmptyList:
+    term
+      { [$1] }
+  | term SEMICOLON notEmptyList
+      { $1::$3 }
 
 ty :
     atomicTy

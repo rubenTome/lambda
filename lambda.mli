@@ -7,6 +7,7 @@ type ty =
   | TyTuple of ty list
   | TyRec of (string * ty) list
   | TyTop
+  | TyList of ty
 ;;
 
 type 'a context =
@@ -31,6 +32,7 @@ type term =
   | TmTuple of term list
   | TmRec of (string * term) list
   | TmProj of (term * string)
+  | TmList of term list
 ;;
 
 type command = 
