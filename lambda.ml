@@ -72,7 +72,7 @@ let rec string_of_ty ty = match ty with
   | TyRec l ->
       "{" ^ String.concat ", " (List.map (fun (lb, tp) -> lb ^ ":" ^ string_of_ty tp) l) ^ "}"
   | TyList t ->
-      (string_of_ty t) ^ " list"
+      (string_of_ty t) ^ " List"
 ;;
 
 exception Type_error of string
