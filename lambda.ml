@@ -535,6 +535,7 @@ let rec eval vctx tm =
     NoRuleApplies -> apply_ctx vctx tm
 ;;
 
+(*For the incorporation of a context of global definitions we have now two lists vctx (for values) and tctx (for types)*)
 let execute (vctx, tctx) = function
   Eval tm ->
     let tyTm = typeof tctx tm in

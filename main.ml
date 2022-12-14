@@ -8,6 +8,8 @@ open Lexer;;
 
 open String;;
 
+(*Function that substitutes a read_line and is used to read more than one line of input.
+  Until the user enters a ';;'*)
 let rec read_multiline str = 
   try 
     flush stdout;
@@ -27,7 +29,7 @@ let top_level_loop () =
     print_string ">> ";
     flush stdout;
     try
-      let c = s token (from_string (read_multiline "")) in
+      let c = s token (from_string (read_multiline "")) in (*Here we call read_multiline instead of read_line*)
       loop (execute (vctx, tctx) c)
     with
        Lexical_error ->
