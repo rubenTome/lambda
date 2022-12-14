@@ -63,6 +63,7 @@ let getbinding ctx x =
 
 (* TYPE MANAGEMENT (TYPING) *)
 
+(*Functions that accepts a data type a returns its name in string format*)
 let rec string_of_ty ty = match ty with
     TyBool ->
       "Bool"
@@ -86,6 +87,7 @@ exception Type_error of string
 
 (* SUBTYPING *)
 
+(*Function to check if ty1 is a subtype of ty2*)
 let rec subtype ctx ty1 ty2 = 
    ty1 = ty2 ||
   match (ty1, ty2) with
@@ -103,6 +105,7 @@ let rec subtype ctx ty1 ty2 =
   | (_, _) -> false
 ;;
 
+(*Function that accepts a term and returns its type*)
 let rec typeof ctx tm = match tm with
     (* T-True *)
     TmTrue ->
@@ -219,6 +222,7 @@ let rec typeof ctx tm = match tm with
 
 (* TERMS MANAGEMENT (EVALUATION) *)
 
+(*Function that accepts a term and returns it in string format*)
 let rec string_of_term = function
     TmTrue ->
       "true"
@@ -274,6 +278,8 @@ let rec lunion l1 l2 = match l1 with
   | h::t -> if List.mem h l2 then lunion t l2 else h::(lunion t l2)
 ;;
 
+(*Function that returns a list with the free variables of a term*)
+(*If the term does not have free variables, the function returns the empty list*)
 let rec free_vars tm = match tm with
     TmTrue ->
       []
@@ -316,7 +322,8 @@ let rec free_vars tm = match tm with
 let rec fresh_name x l =
   if not (List.mem x l) then x else fresh_name (x ^ "'") l
 ;;
-    
+
+(*Function that substitutes x with s in term tm*)
 let rec subst x s tm = match tm with
     TmTrue ->
       TmTrue
@@ -372,6 +379,7 @@ let rec isnumericval tm = match tm with
   | _ -> false
 ;;
 
+(*Function that returns true if a term is completelly evaluated*)
 let rec isval tm = match tm with
     TmTrue  -> true
   | TmFalse -> true

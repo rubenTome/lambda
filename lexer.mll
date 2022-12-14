@@ -22,20 +22,20 @@ rule token = parse
   | "Top"       { TOP }
   | "Bool"      { BOOL }
   | "Nat"       { NAT }
-  | "String"    { STRING }
-  | "concat"    { CONCAT }
+  | "String"    { STRING } (*Add string data type*)
+  | "concat"    { CONCAT } (*Add concat for string data type*)
   | '('         { LPAREN }
   | ')'         { RPAREN }
-  | '.'         { DOT }
-  | '='         { EQ }
-  | ':'         { COLON }
+  | '.'         { DOT } (*Add dot for projection*)
+  | '='         { EQ }  (*Used for global context definitions and for records*)
+  | ':'         { COLON } (*Used for records*)
   | "->"        { ARROW }
-  | "{"         { LBRACE }
-  | "}"         { RBRACE }
-  | ","         { COMMA }
-  | "["         { LBRACKET }
-  | "]"         { RBRACKET }
-  | ";"         { SEMICOLON }
+  | "{"         { LBRACE } (*Used for records and tuples*)
+  | "}"         { RBRACE } (*Used for records and tuples*)
+  | ","         { COMMA } (*Used for records and tuples*)
+  | "["         { LBRACKET } (*Used for lists*)
+  | "]"         { RBRACKET } (*Used for lists*)
+  | ";"         { SEMICOLON } (*Used for lists*)
   | ['0'-'9']+  { INTV (int_of_string (Lexing.lexeme lexbuf)) }
   | ['a'-'z']['a'-'z' '_' '0'-'9']*
                 { STRINGV (Lexing.lexeme lexbuf) }

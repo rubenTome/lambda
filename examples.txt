@@ -20,22 +20,21 @@ px = lambda r:{x:Nat}. r.x
 a = px {x=1, a=3, b=2}
 
 (*SUMA*)
+
 suma = letrec sum : Nat -> Nat -> Nat =
 lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m)
 in sum;;
-producto = letrec prod : Nat -> Nat -> Nat =
-lambda n : Nat. lambda m : Nat. if iszero n then m else (prod (pred n) (suma m m))) 
-    in prod;;
-
-letrec sum : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) in (letrec prod : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else (prod (pred n) (sum m m)) in prod 6 2);;
 
 (*PRODUCTO*)
+
 producto = letrec sum : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) 
 in (letrec prod : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero (pred n) then m else (sum m (prod (pred n) m)) in prod);;
 
 (*FACTORIAL*)
+
 factorial = letrec fact : Nat -> Nat = lambda n : Nat. if iszero n then 1 else (producto n (fact(pred n))) in fact;;
 
 (*FIBONACCI*)
 
-
+fib = letrec sum : Nat -> Nat -> Nat = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) 
+in (letrec fib : Nat -> Nat = lambda i : Nat. if iszero i then 0 else if iszero (pred i) then 1 else sum (fib (pred i))(fib (pred (pred i))) in fib);;
