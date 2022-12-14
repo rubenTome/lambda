@@ -1,6 +1,7 @@
 
 (* TYPE DEFINITIONS *)
 
+(*All the types must be defined here*)
 type ty =
     TyBool
   | TyNat
@@ -15,7 +16,7 @@ type ty =
 type 'a context =
   (string * 'a) list
 ;;
-
+(*All terms must be defined here*)
 type term =
     TmTrue
   | TmFalse
@@ -37,6 +38,9 @@ type term =
   | TmList of term list
 ;;
 
+(*In order to have global context definitions we have two types of comands
+    -Eval (evaluation of a term)
+    -Bind (definition) *)
 type command = 
   Eval of term
 | Bind of string * term
@@ -153,7 +157,7 @@ let rec typeof ctx tm = match tm with
       let tyT2 = typeof ctx t2 in
       (match tyT1 with
            TyArr (tyT11, tyT12) ->
-             if (tyT2 = tyT11 || subtype ctx tyT2 tyT11) then tyT12
+             if (tyT2 = tyT11 || subtype ctx tyT2 tyT11) then tyT12         (*now we check for same type or subtype*)
              else raise (Type_error "parameter type mismatch")
          | _ -> raise (Type_error "arrow type expected"))
 
@@ -178,13 +182,13 @@ let rec typeof ctx tm = match tm with
   | TmConcat (t1, t2) ->
       if typeof ctx t1 = TyString && typeof ctx t2 = TyString then TyString
       else raise (Type_error "must be 2 strings to concat")
-
+    (*T-TUPLE*)
   | TmTuple l -> 
       TyTuple (List.map (fun t -> typeof ctx t) l)
-
+    (*T-RCD*)
   | TmRec l -> 
       TyRec (List.map (fun (lb, t) -> (lb, typeof ctx t)) l)
-
+    (*T-PROJ*)
   | TmProj (t, lb) ->
       (
       match typeof ctx t with
@@ -465,28 +469,38 @@ let rec eval1 vctx tm = match tm with
 
   | TmConcat (TmString s1, TmString s2) ->
       TmString (s1^s2)
+
   | TmConcat (TmString s1, t2) ->
       let t2' = eval1 vctx t2 in TmConcat (TmString s1, t2')
+
   | TmConcat (t1, t2) ->
       let t1' = eval1 vctx t1 in TmConcat (t1', t2)
 
+    (*E-TUPLE*)
   | TmTuple l ->
       let rec aux = function
           [] -> raise NoRuleApplies
         | h::t when isval h -> h::(aux t)
         | h::t -> (eval1 vctx h)::t
       in TmTuple (aux l)
+
+    (*E-RCD*)
   | TmRec l ->
       let rec aux = function
           [] -> raise NoRuleApplies
         | (lb, h)::t when isval h -> (lb, h)::(aux t)
         | (lb, h)::t -> (lb, eval1 vctx h)::t
       in TmRec (aux l) 
-
+    
+    (*E-PROJTUPLE*)
   | TmProj (TmTuple fields as v, lb) when isval v -> 
       List.nth fields (int_of_string lb - 1)
+    
+    (*E-PROJRCD*)
   | TmProj (TmRec fields as v, lb) when isval v ->
       List.assoc lb fields
+    
+    (*E-PROJ*)
   | TmProj (t, lb) ->
       TmProj (eval1 vctx t, lb)
 
